@@ -12,12 +12,12 @@ type SearchRow = {
   qualityClass?: string;
 };
 
-function absoluteBaseFromHeaders() {
-  const h = headers();
-  const host = h.get("x-forwarded-host") || h.get("host") || "localhost:3000";
-  const proto = h.get("x-forwarded-proto") || "http";
-  return `${proto}://${host}`;
-}
+ async function absoluteBaseFromHeaders() {
+   const h = await headers();
+   const host = h.get("x-forwarded-host") ?? h.get("host") ?? "localhost:3000";
+   const proto = h.get("x-forwarded-proto") ?? "http";
+   return `${proto}://${host}`;
+ }
 
 function normalizeKind(kind?: string): string {
   const k = (kind || "").toLowerCase();
@@ -89,7 +89,7 @@ export default async function SearchPage({ searchParams }: { searchParams: Searc
 
   if (q) {
     try {
-      const base = absoluteBaseFromHeaders();
+      const base = await absoluteBaseFromHeaders();
       const res = await fetch(`${base}/api/search?q=${encodeURIComponent(q)}`, { cache: "no-store" });
       if (!res.ok) throw new Error(`Upstream ${res.status}`);
       const json = await res.json();
